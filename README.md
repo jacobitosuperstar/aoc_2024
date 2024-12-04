@@ -2,4 +2,3 @@
 
 - One day Python.
 - One day is Go.
-- One day is Rust.
