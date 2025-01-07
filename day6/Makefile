@@ -1,7 +1,7 @@
-.PHONY: run test
-
-run:
-	go run main.go puzzle_input.txt
+.PHONY: test run
 
 test:
-	go run main.go test_input.txt
+	python3 main.py test_input.txt
+
+run:
+	python3 main.py puzzle_input.txt
