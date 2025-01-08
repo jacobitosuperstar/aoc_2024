@@ -6,39 +6,75 @@ def read_file(file_path: str) -> str:
         return s
 
 def nums(line) -> list[int]:
-    match = re.findall(r'\d+', line)
+    match = re.findall(r'\-\d+|\d+', line)
     numbers = [int(value) for value in match]
     return numbers
 
+def mainpt1(file_path):
+    """We take each element of the file and parse it. Then we multiply the
+    time for the velocity and add it to the initial position just to divide by
+    the module. That residual value is the final position of the robot at the
+    tiles knowing that they can wrap around the map.
+
+    Because they tell us about the cuadrants, on which we delete the middle
+    line of the grid, we do the (tx-1)//2 to know row before the middle, and
+    then we clasify the robots within the cuadrants
+    """
+    # Creating the maps of the antenas
+    s: str = read_file(file_path)
+    counter: int = 1
+    # dimentions of the map
+    tx: int = 101 # 11 # 101
+    ty: int = 103 # 7 # 103
+    time: int = 100 # 100 seconds is what we need to simulate
+    ans: list[int]= [0, 0 , 0, 0]
+    for l in s.split("\n"):
+        px, py, vx, vy = nums(l)
+
+        px = (px + vx*time) % tx
+        py = (py + vy*time) % ty
+
+        if px < (tx-1)//2 and py < (ty-1)//2:
+            ans[0] += 1
+        elif px > (tx-1)//2 and py < (ty-1)//2:
+            ans[1] += 1
+        elif px < (tx-1)//2 and py > (ty-1)//2:
+            ans[2] += 1
+        elif px > (tx-1)//2 and py > (ty-1)//2:
+            ans[3] += 1
+
+    for element in ans:
+        counter *= element
+    return counter
+
 
 def main(file_path):
+    """For the part two, we need to find the point on which the robots create
+    a christmas tree. Because we don't know the shape we just eye bolled that
+    all the positions of the robots must be different.
+
+    To do this, we create a set of seen positions and compare it to the length
+    of the positions of the robots, and we simulate the time passing by. If
+    they are the same, we break the loop and return the amount of time passed.
+    """
     # Creating the maps of the antenas
-    s = read_file(file_path)
-    counter = 0
+    s: str = read_file(file_path)
     # dimentions of the map
-    t_x = 11
-    t_y = 7
-    time = 100 # 100 seconds is what we need to simulate
-    positions = {}
-    for l in s.split("\n"):
-        # print(l)
-        p, v = l.split(" ")
-        p = nums(p)
-        v = nums(v)
-        # p = [2,4]
-        # v = [2,-3]
-        print(p, v)
+    tx: int = 101 # 11 # 101
+    ty: int = 103 # 7 # 103
+    for time in range(1000000):
+        robots = 0
+        seen = set()
+        for l in s.split("\n"):
+            px, py, vx, vy = nums(l)
 
-        p[0] = (v[0]*time + p[0]) % t_x
-        p[1] = (v[1]*time + p[1]) % t_y
-
-        if tuple(p) in positions:
-            positions[tuple(p)] += 1
-        else:
-            positions[tuple(p)] = 1
-        break
-    print(positions)
-    return counter
+            px = (px + vx*time) % tx
+            py = (py + vy*time) % ty
+            seen.add((px, py))
+            robots += 1
+        if len(seen) == robots:
+            break
+    return time
 
 
 if __name__ == "__main__":
